@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css" />
+  </head>
+  <body>
+    <div class="content">
+      <h1><%= title %></h1>
+        <p>Welcome to <%= title %>! Pick a login option.</p>
+
+        <select class="form-control" name="loginmethod" form="loginForm">
+          <option value="urn:grn:authn:no:bankid">Norwegian BankID</option>
+          <option value="urn:grn:authn:no:vipps">Norwegian Vipps</option>
+          <option value="urn:grn:authn:se:bankid:same-device">Swedish BankID same device</option>
+          <option value="urn:grn:authn:se:bankid:another-device">Swedish BankID another device</option>
+          <option value="urn:grn:authn:dk:nemid:poces">Danish NemID personal with code card</option>
+          <option value="urn:grn:authn:dk:nemid:moces">Danish NemID employee with code card</option>
+          <option value="urn:grn:authn:dk:nemid:moces:codefile">Danish NemID employee with code file</option>
+          <option value="urn:grn:authn:fi:bankid">Finish e-ID - BankID</option>
+          <option value="urn:grn:authn:fi:mobile-id">Finish e-ID - Mobile certificate</option>
+          <option value="urn:grn:authn:fi:all">Finish all options</option>
+        </select>
+
+        <form action="/auth" id="loginForm" target="loginIframe">
+          <input class="btn btn-outline-primary" type="submit" value="Login">
+        </form>
+
+        <iframe class="login-iframe" name="loginIframe"></iframe>
+    </div>
+  </body>
+</html>
