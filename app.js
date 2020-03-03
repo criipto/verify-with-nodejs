@@ -10,8 +10,6 @@ const { Issuer, Strategy } = require('openid-client');
 const port = 3000;
 const app = express();
 
-let id_token;
-
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.set('views', path.join(__dirname, 'views'));
@@ -42,7 +40,6 @@ Issuer.discover('https://nodejs-sample.criipto.id')
     passport.use(
       'oidc',
       new Strategy({ client }, (tokenSet, userinfo, done) => {
-        id_token = tokenSet.id_token;
         return done(null, tokenSet.claims());
       })
     );
@@ -83,7 +80,7 @@ Issuer.discover('https://nodejs-sample.criipto.id')
 
     // start logout request
     app.get('/logout', (req, res) => {
-      res.redirect(client.endSessionUrl({ id_token_hint: id_token }));
+      res.redirect(client.endSessionUrl());
     });
 
     // logout callback
