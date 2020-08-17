@@ -1,4 +1,8 @@
+const dotenv = require('dotenv');
+dotenv.config();
 const express = require('express');
+const logger = require('morgan');
+const debug = require('debug');
 const path = require('path');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -7,8 +11,15 @@ const expressSesssion = require('express-session');
 const passport = require('passport');
 const { Issuer, Strategy } = require('openid-client');
 
+
+// setting up debugger
+const log = debug('app:log');
+log.log = console.log.bind(console);
+
 const port = 3000;
+
 const app = express();
+app.use(logger('dev'));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -27,6 +38,8 @@ Issuer.discover('https://nodejs-sample.criipto.id')
       token_endpoint_auth_method: 'client_secret_post'
     });
 
+    log('Criipto issuer successfully discovered.');
+
     app.use(
       expressSesssion({
         secret: 'Some secret you say?',
@@ -40,36 +53,69 @@ Issuer.discover('https://nodejs-sample.criipto.id')
     passport.use(
       'oidc',
       new Strategy({ client }, (tokenSet, userinfo, done) => {
+        log('Token successfully retreived.');
+        log(tokenSet);
+
         return done(null, tokenSet.claims());
       })
     );
 
     // handles serialization and deserialization of authenticated user
     passport.serializeUser(function(user, done) {
+      log('Serializeing a user.');
+
       done(null, user);
     });
     passport.deserializeUser(function(user, done) {
+      log('Deserializeing a user.');
+
       done(null, user);
     });
 
     // start authentication request
     app.get('/auth', (req, res, next) => {
       let loginMethod = req.query.loginmethod;
+
+      log('Starting authentication.');
+      log('Chosen method: ' + loginMethod);
+
       passport.authenticate('oidc', { acr_values: loginMethod })(req, res, next);
     });
 
     // authentication callback
     app.get('/auth/callback', (req, res, next) => {
-      passport.authenticate('oidc', {
-        successRedirect: '/success',
-        failureRedirect: '/error'
+      log('Callback received: ' + JSON.stringify(req.query));
+
+      passport.authenticate('oidc', (err, user, info) => {
+        if (err) {
+          log(err);
+          log(info);
+
+          return next(err);
+        }
+
+        if (!user) {
+          log('User was not authenticated.');
+          log(info);
+
+          return res.redirect('/');
+        }
+        
+        req.logIn(user, err => {
+          if (err) {
+            log(err);
+            // handle error
+          } else {
+            res.redirect('/success');
+          }
+        });
       })(req, res, next);
     });
 
     // error redirect
     app.get('/error', (req, res) => {
       //handle the error
-      console.log('There was an error while processing the request.');
+      log('There was an error while processing the request.');
       res.redirect('/');
     });
 
@@ -80,11 +126,13 @@ Issuer.discover('https://nodejs-sample.criipto.id')
 
     // start logout request
     app.get('/logout', (req, res) => {
+      log('Starting the logout request.');
       res.redirect(client.endSessionUrl());
     });
 
     // logout callback
     app.get('/logout/callback', (req, res) => {
+      log('Log out successful.');
       // clears the persisted user from the local storage
       req.logout();
       // redirects the user to a public route
