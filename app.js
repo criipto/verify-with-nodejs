@@ -40,7 +40,7 @@ Issuer.discover('https://nodejs-sample.criipto.id')
 
     // you can optionally set clock_tolerance to allow JWT to be valid
     // even if your system is not in sync with the server time
-    client[custom.clock_tolerance] = 5 // seconds
+    client[custom.clock_tolerance] = 300 // seconds
 
     log('Criipto issuer successfully discovered.');
 
