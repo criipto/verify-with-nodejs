@@ -9,7 +9,7 @@ const usersRouter = require('./routes/users');
 const successRouter = require('./routes/loginSuccess');
 const expressSesssion = require('express-session');
 const passport = require('passport');
-const { Issuer, Strategy } = require('openid-client');
+const { Issuer, Strategy, custom  } = require('openid-client');
 
 
 // setting up debugger
@@ -37,6 +37,10 @@ Issuer.discover('https://nodejs-sample.criipto.id')
       post_logout_redirect_uris: [ 'http://localhost:3000/logout/callback' ],
       token_endpoint_auth_method: 'client_secret_post'
     });
+
+    // you can optionally set clock_tolerance to allow JWT to be valid
+    // even if your system is not in sync with the server time
+    client[custom.clock_tolerance] = 5 // seconds
 
     log('Criipto issuer successfully discovered.');
 
