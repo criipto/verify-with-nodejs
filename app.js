@@ -15,6 +15,8 @@ const { Issuer, Strategy, custom  } = require('openid-client');
 // setting up debugger
 const log = debug('app:log');
 log.log = console.log.bind(console);
+const logOpenidClient = debug('openid-client:log');
+logOpenidClient.log = console.log.bind(console);
 
 const port = 3000;
 
@@ -26,6 +28,34 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use('/', indexRouter);
+
+
+// set up custom openid-client hook to print out all of the http requests
+custom.setHttpOptionsDefaults({
+  hooks: {
+    beforeRequest: [
+      (options) => {
+        logOpenidClient('Request details below:');
+        logOpenidClient('--> %s %s', options.method.toUpperCase(), options.href);
+        logOpenidClient('--> HEADERS %o', options.headers);
+        if (options.body) {
+          logOpenidClient('--> BODY %s', options.body);
+        }
+      },
+    ],
+    afterResponse: [
+      (response) => {
+        logOpenidClient('Response details below:');
+        logOpenidClient('<-- %i FROM %s %s', response.statusCode, response.request.gotOptions.method.toUpperCase(), response.request.gotOptions.href);
+        logOpenidClient('<-- HEADERS %o', response.headers);
+        if (response.body) {
+          logOpenidClient('<-- BODY %s', response.body);
+        }
+        return response;
+      },
+    ],
+  },
+});
 
 // setup openid-client
 Issuer.discover('https://nodejs-sample.criipto.id')

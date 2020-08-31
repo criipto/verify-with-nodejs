@@ -12,3 +12,6 @@ You can access the app on [http://localhost:3000](http://localhost:3000). Altern
 
 ## Debugging
 Default debugging level is `app:log`, meaning it will print all the logs coming from the application itself, but not dependencies. Logging level can be changed or turned off in the `.env` file by setting `DEBUG` environment variable to desired level.
+
+### Enabling openid-client logs
+To enable openid-client log, simply append `openid-client:log` value to the `DEBUG` environment variable in `.env` file. For example: `DEBUG=app:log,openid-client:log`.
