@@ -58,7 +58,7 @@ custom.setHttpOptionsDefaults({
 });
 
 // setup openid-client
-Issuer.discover('https://nodejs-sample.criipto.id')
+Issuer.discover('https://nodejs-sample.criipto.id/.well-known/openid-configuration')
   .then(criiptoIssuer => {
     const client = new criiptoIssuer.Client({
       client_id: 'urn:criipto:nodejs:demo:1010',
